@@ -23,3 +23,22 @@ export interface PaginatedResponse<T> {
   current: number; // 当前页码
   pageSize: number; // 每页条数
 }
+
+// 用户状态枚举
+export type UserStatus = "active" | "inactive" | "suspended";
+
+// 用户角色枚举
+export type UserRole = "admin" | "user" | "guest";
+
+// 用户数据接口
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  role: UserRole;
+  status: UserStatus;
+  createdAt: string;
+  updatedAt: string;
+  lastLoginAt?: string;
+}

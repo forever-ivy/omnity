@@ -1,3 +1,11 @@
+import { storageUtils } from "../utils";
+import {
+  API_BASE_URL,
+  ERROR_MESSAGES,
+  STORAGE_KEYS,
+} from "../constants/constant";
+import { notifyError } from "../feedback";
+
 /**
  * HTTP 请求配置接口
  * 定义了所有请求需要的参数
@@ -85,11 +93,11 @@ class HttpClient {
         ) {
           window.location.href = "/login";
         }
-        message.error(ERROR_MESSAGES.UNAUTHORIZED);
+        notifyError(ERROR_MESSAGES.UNAUTHORIZED);
       } else if (error.status === 403) {
-        message.error(ERROR_MESSAGES.FORBIDDEN);
+        notifyError(ERROR_MESSAGES.FORBIDDEN);
       } else {
-        message.error(error.message || ERROR_MESSAGES.UNKNOWN_ERROR);
+        notifyError(error.message || ERROR_MESSAGES.UNKNOWN_ERROR);
       }
       throw error;
     });
@@ -135,10 +143,28 @@ class HttpClient {
     for (const interceptor of this.errorInterceptors) {
       try {
         await interceptor(error);
-      } catch (e) {
+      } catch {
         // 拦截器可能会抛出新的错误
       }
     }
+  }
+
+  // 构建完整 URL
+  private buildURL(url: string, params?: Record<string, any>): string {
+    const fullURL = url.startsWith("http") ? url : `${this.baseURL}${url}`;
+
+    if (params) {
+      const searchParams = new URLSearchParams();
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== null && value !== undefined && value !== "") {
+          searchParams.append(key, String(value));
+        }
+      });
+      const queryString = searchParams.toString();
+      return queryString ? `${fullURL}?${queryString}` : fullURL;
+    }
+
+    return fullURL;
   }
 
   private async request<T = any>(
@@ -174,7 +200,7 @@ class HttpClient {
       }
 
       // 4. 构建完整 URL（包含查询参数）
-      const url = this.buidURL(finalConfig.url, finalConfig.params);
+      const url = this.buildURL(finalConfig.url, finalConfig.params);
 
       // 5. 发送请求
       const response = await fetch(url, fetchOptions);
@@ -295,7 +321,7 @@ class HttpClient {
           try {
             const response = JSON.parse(xhr.responseText);
             resolve(response);
-          } catch (error) {
+          } catch {
             reject(new Error("Invalid JSON response"));
           }
         } else {
@@ -344,7 +370,7 @@ class HttpClient {
 
       window.URL.revokeObjectURL(downloadUrl);
     } catch (error) {
-      message.error("文件下载失败");
+      notifyError("文件下载失败");
       throw error;
     }
   }

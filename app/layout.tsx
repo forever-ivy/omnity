@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
-import { ConfigProvider } from "antd";
+import { App, ConfigProvider } from "antd";
+import { AntdFeedbackBridge } from "@/components/providers/AntdFeedbackBridge";
 import { theme } from "@/lib/theme";
 import "./globals.css";
 
@@ -32,7 +33,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AntdRegistry>
-          <ConfigProvider theme={theme}>{children}</ConfigProvider>
+          <ConfigProvider theme={theme}>
+            <App>
+              <AntdFeedbackBridge>{children}</AntdFeedbackBridge>
+            </App>
+          </ConfigProvider>
         </AntdRegistry>
       </body>
     </html>

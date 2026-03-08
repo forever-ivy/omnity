@@ -165,3 +165,44 @@ export function maskEmail(email: string): string {
     username.charAt(username.length - 1);
   return `${masked}@${domain}`;
 }
+
+// 本地存储工具函数
+export const storageUtils = {
+  // 设置本地存储
+  set: (key: string, value: any): void => {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch (error) {
+      console.error("Failed to set localStorage:", error);
+    }
+  },
+
+  // 获取本地存储
+  get: <T>(key: string, defaultValue?: T): T | null => {
+    try {
+      const item = localStorage.getItem(key);
+      return item ? JSON.parse(item) : defaultValue || null;
+    } catch (error) {
+      console.error("Failed to get localStorage:", error);
+      return defaultValue || null;
+    }
+  },
+
+  // 删除本地存储
+  remove: (key: string): void => {
+    try {
+      localStorage.removeItem(key);
+    } catch (error) {
+      console.error("Failed to remove localStorage:", error);
+    }
+  },
+
+  // 清空本地存储
+  clear: (): void => {
+    try {
+      localStorage.clear();
+    } catch (error) {
+      console.error("Failed to clear localStorage:", error);
+    }
+  },
+};
