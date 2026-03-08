@@ -1,5 +1,6 @@
+import { User } from "../types/user";
 import { http } from "./http";
-import type { User, PaginationParams, PaginatedResponse } from "@/lib/types";
+import type {  PaginationParams, PaginatedResponse } from "@/lib/types";
 
 /**
  * 用户相关 API 服务
