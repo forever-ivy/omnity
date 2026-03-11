@@ -1,76 +1,71 @@
 "use client";
 
-import React from "react";
-import { Breadcrumb as AntBreadcrumb } from "antd";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Home, LayoutDashboard, Users } from "lucide-react";
 import {
-  HomeOutlined,
-  UserOutlined,
-  DashboardOutlined,
-} from "@ant-design/icons";
+  Breadcrumb as BreadcrumbRoot,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
-const Breadcrumb: React.FC = () => {
+const pathMap: Record<string, { title: string; icon?: typeof Home }> = {
+  "/": { title: "首页", icon: Home },
+  "/dashboard": { title: "仪表盘", icon: LayoutDashboard },
+  "/users": { title: "用户管理", icon: Users },
+  "/users/list": { title: "用户列表" },
+  "/users/roles": { title: "角色管理" },
+};
+
+export default function Breadcrumb() {
   const pathname = usePathname();
+  const pathSegments = pathname.split("/").filter(Boolean);
 
-  // 路径到标题的映射配置
-  // 这里可以根据实际项目需求进行扩展
-  const pathMap: Record<string, { title: string; icon?: React.ReactNode }> = {
-    "/": { title: "首页", icon: <HomeOutlined /> },
-    "/dashboard": { title: "仪表盘", icon: <DashboardOutlined /> },
-    "/users": { title: "用户管理", icon: <UserOutlined /> },
-    "/users/list": { title: "用户列表" },
-    "/users/roles": { title: "角色管理" },
-  };
+  const items: Array<{ path: string; title: string; icon?: typeof Home }> = [{ path: "/", title: "首页", icon: Home }];
 
-  // 生成面包屑项目
-  const generateBreadcrumbItems = () => {
-    // 分割路径，过滤空字符串
-    const pathSegments = pathname.split("/").filter(Boolean);
-
-    // 始终包含首页
-    const items = [
-      {
-        title: (
-          <span className="flex items-center">
-            <HomeOutlined className="mr-1" />
-            首页
-          </span>
-        ),
-        href: "/",
-      },
-    ];
-
-    // 逐级构建路径
-    let currentPath = "";
-    pathSegments.forEach((segment, index) => {
-      currentPath += `/${segment}`;
-      const config = pathMap[currentPath];
-
-      if (config) {
-        const isLast = index === pathSegments.length - 1;
-        items.push({
-          title: (
-            <span className="flex items-center">
-              {config.icon && <span className="mr-1">{config.icon}</span>}
-              {config.title}
-            </span>
-          ),
-          // 最后一项不设置链接（当前页面）
-          href: isLast ? undefined : currentPath,
-        });
-      }
-    });
-
-    return items;
-  };
-
-  const items = generateBreadcrumbItems();
+  let currentPath = "";
+  pathSegments.forEach((segment) => {
+    currentPath += `/${segment}`;
+    const config = pathMap[currentPath];
+    if (config) {
+      items.push({ path: currentPath, title: config.title, icon: config.icon });
+    }
+  });
 
   return (
     <div className="mb-6">
-      <AntBreadcrumb items={items} />
+      <BreadcrumbRoot>
+        <BreadcrumbList className="text-sm">
+          {items.map((item, index) => {
+            const isLast = index === items.length - 1;
+            const Icon = item.icon;
+
+            return (
+              <div key={item.path} className="flex items-center">
+                <BreadcrumbItem>
+                  {isLast ? (
+                    <BreadcrumbPage className="flex items-center gap-1.5 text-macos-text font-medium">
+                      {Icon && <Icon className="w-4 h-4" />}
+                      {item.title}
+                    </BreadcrumbPage>
+                  ) : (
+                    <BreadcrumbLink asChild>
+                      <Link href={item.path} className="flex items-center gap-1.5 text-macos-text-secondary hover:text-macos-orange transition-colors">
+                        {Icon && <Icon className="w-4 h-4" />}
+                        {item.title}
+                      </Link>
+                    </BreadcrumbLink>
+                  )}
+                </BreadcrumbItem>
+                {!isLast && <BreadcrumbSeparator className="text-macos-gray-light" />}
+              </div>
+            );
+          })}
+        </BreadcrumbList>
+      </BreadcrumbRoot>
     </div>
   );
-};
-
-export default Breadcrumb;
+}

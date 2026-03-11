@@ -1,114 +1,144 @@
 "use client";
 
-import React, { useState } from "react";
-import { Layout, Menu } from "antd";
-import { usePathname, useRouter } from "next/navigation";
-import { DashboardOutlined, UserOutlined } from "@ant-design/icons";
-import type { MenuProps } from "antd";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import Image from "next/image";
+import { LayoutDashboard, Users, Shield, ChevronLeft, ChevronRight, Settings } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-const { Sider } = Layout;
-
-// 定义侧边栏组件的属性
-interface SidebarProps {
-  collapsed: boolean; // 是否折叠
+interface NavItem {
+  path: string;
+  label: string;
+  icon: React.ElementType;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
-  const pathname = usePathname(); // 获取当前路径
-  const router = useRouter(); // 路由对象
+const navItems: NavItem[] = [
+  { path: "/dashboard", label: "仪表盘", icon: LayoutDashboard },
+  { path: "/users/list", label: "用户列表", icon: Users },
+  { path: "/users/roles", label: "角色管理", icon: Shield },
+];
 
-  // 管理菜单展开状态
-  const [openKeys, setOpenKeys] = useState<string[]>(["users-group"]);
+interface SidebarProps {
+  collapsed: boolean;
+  mobileOpen: boolean;
+  onDesktopToggle: () => void;
+  onMobileClose: () => void;
+  onNavigate?: () => void;
+}
 
-  // 定义菜单项配置
-  const menuItems = [
-    {
-      key: "/dashboard",
-      icon: <DashboardOutlined />,
-      label: "仪表盘",
-    },
-    {
-      key: "users-group", // 注意：这里用非路径的 key，避免和路由冲突
-      icon: <UserOutlined />,
-      label: "用户管理",
-      children: [
-        {
-          key: "/users/list",
-          label: "用户列表",
-        },
-        {
-          key: "/users/roles",
-          label: "角色管理",
-        },
-      ],
-    },
-  ];
-
-  // 处理菜单点击事件
-  const handleMenuClick: MenuProps["onClick"] = (e) => {
-    // 只有叶子节点（实际页面）才进行路由跳转
-    if (e.key.startsWith("/")) {
-      router.push(e.key);
-    }
-  };
-
-  // 处理菜单展开/收起
-  const handleOpenChange = (keys: string[]) => {
-    setOpenKeys(keys);
-  };
+export function Sidebar({
+  collapsed,
+  mobileOpen,
+  onDesktopToggle,
+  onMobileClose,
+  onNavigate,
+}: SidebarProps) {
+  const pathname = usePathname();
 
   return (
-    <Sider
-      trigger={null}
-      collapsible
-      collapsed={collapsed}
-      className="fixed left-0 top-0 bottom-0 z-20"
-      width={256}
-      collapsedWidth={80}
-      breakpoint="lg" // 在 lg 断点以下自动折叠
-      onBreakpoint={(broken) => {
-        // 可以在这里处理断点变化
-        console.log("断点变化:", broken);
-      }}
+    <aside
+      className={cn(
+        "fixed left-0 top-0 z-50 flex h-screen w-60 -translate-x-full flex-col border-r border-white/40 glass shadow-2xl transition-[width,transform] duration-300 lg:translate-x-0 lg:shadow-none",
+        mobileOpen && "translate-x-0",
+        collapsed ? "lg:w-[72px]" : "lg:w-60"
+      )}
     >
-      {/* Logo 区域 */}
-      <div className="h-16 flex items-center justify-center border-b border-gray-200">
-        <div className="flex items-center space-x-3">
-          {/* 应用图标 */}
-          <div
-            className={`w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center ${
-              collapsed ? "translate-x-[0px]" : ""
-            }`}
-          >
-            <span className="text-white font-bold text-sm">A</span>
-          </div>
-          {/* 应用名称 - 只在展开时显示 */}
-          {!collapsed && (
-            <div className="text-gray-800 font-semibold text-lg tracking-wide">
-              Admin Pro
-            </div>
+      <div
+        className={cn(
+          "relative flex h-16 items-center border-b border-black/5 px-4",
+          collapsed && "lg:justify-center lg:px-3"
+        )}
+      >
+        <button
+          type="button"
+          onClick={onDesktopToggle}
+          aria-label="展开侧边栏"
+          className={cn(
+            "group relative hidden h-11 w-11 items-center justify-center rounded-xl transition-colors duration-200 hover:bg-black/5 focus-visible:bg-black/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400/30 lg:flex",
+            !collapsed && "lg:hidden"
           )}
+        >
+          <Image
+            src="/logo.png"
+            alt="Omnity Logo"
+            width={46}
+            height={46}
+            className="rounded-lg transition-opacity duration-200 group-hover:opacity-0 group-focus-visible:opacity-0"
+          />
+          <span className="absolute inset-0 flex items-center justify-center rounded-xl bg-white/70 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100">
+            <ChevronRight className="w-5 h-5 text-macos-text" />
+          </span>
+        </button>
+
+        <div className={cn("flex items-center gap-3", collapsed && "lg:hidden")}>
+          <Image
+            src="/logo.png"
+            alt="Omnity Logo"
+            width={46}
+            height={46}
+            className="rounded-lg"
+          />
+          <span className="font-serif text-xl font-semibold tracking-tight text-macos-text">
+            Omnity
+          </span>
+        </div>
+
+        <button
+          type="button"
+          onClick={onMobileClose}
+          aria-label="关闭侧边栏"
+          className="absolute right-4 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-macos-gray transition-colors duration-200 hover:bg-black/5 hover:text-macos-text lg:hidden"
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+
+        <button
+          type="button"
+          onClick={onDesktopToggle}
+          aria-label="收起侧边栏"
+          className={cn(
+            "absolute right-4 top-1/2 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-macos-gray transition-colors duration-200 hover:bg-black/5 hover:text-macos-text lg:flex",
+            collapsed && "lg:hidden"
+          )}
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+      </div>
+
+      <nav className="flex-1 overflow-y-auto py-4 px-3">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = pathname === item.path;
+
+          return (
+            <Link
+              key={item.path}
+              href={item.path}
+              onClick={onNavigate}
+              className={cn(
+                "flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 mb-1",
+                isActive
+                  ? "bg-gradient-to-br from-[#F97316] to-[#EA580C] text-white"
+                  : "text-macos-text hover:bg-black/5",
+                collapsed && "lg:justify-center"
+              )}
+            >
+              <Icon className="w-5 h-5" />
+              <span className={cn("ml-3", collapsed && "lg:hidden")}>
+                {item.label}
+              </span>
+            </Link>
+          );
+        })}
+      </nav>
+
+      <div className="border-t border-black/5 p-3">
+        <div className={cn("flex", collapsed && "lg:justify-center")}>
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg text-macos-gray transition-colors duration-200 hover:bg-black/5 hover:text-macos-text">
+            <Settings className="w-5 h-5" />
+          </div>
         </div>
       </div>
-
-      {/* 菜单区域 */}
-      <div className="py-2">
-        <Menu
-          mode="inline" // 内联模式
-          selectedKeys={[pathname]} // 当前选中的菜单项
-          openKeys={openKeys} // 当前展开的菜单组
-          onOpenChange={handleOpenChange} // 展开状态变化回调
-          items={menuItems} // 菜单项配置
-          onClick={handleMenuClick} // 点击回调
-          className="border-r-0 [&_.ant-menu-submenu-popup]:bg-white [&_.ant-menu-submenu-popup]:shadow-lg" // 移除右边框，强制弹出菜单白色背景和阴影
-          inlineIndent={20} // 子菜单缩进
-          style={{
-            ["--ant-menu-popup-bg" as string]: "#ffffff",
-          }}
-        />
-      </div>
-    </Sider>
+    </aside>
   );
-};
-
-export default Sidebar;
+}

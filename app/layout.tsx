@@ -1,25 +1,21 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { AntdRegistry } from "@ant-design/nextjs-registry";
-import { App, ConfigProvider } from "antd";
-import { AntdFeedbackBridge } from "@/components/providers/AntdFeedbackBridge";
-import { theme } from "@/lib/theme";
+import { Inter, Crimson_Pro } from "next/font/google";
+import { Toaster } from "sonner";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
   subsets: ["latin"],
+  variable: "--font-inter",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const crimsonPro = Crimson_Pro({
   subsets: ["latin"],
+  variable: "--font-crimson",
 });
 
 export const metadata: Metadata = {
   title: "Next.js Admin Template",
-  description:
-    "A modern admin template built with Next.js, Ant Design, and Tailwind CSS",
+  description: "A modern admin template built with Next.js and shadcn/ui",
 };
 
 export default function RootLayout({
@@ -28,17 +24,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <AntdRegistry>
-          <ConfigProvider theme={theme}>
-            <App>
-              <AntdFeedbackBridge>{children}</AntdFeedbackBridge>
-            </App>
-          </ConfigProvider>
-        </AntdRegistry>
+    <html lang="zh-CN">
+      <body className={`${inter.variable} ${crimsonPro.variable} antialiased`}>
+        {children}
+        <Toaster position="top-right" richColors />
       </body>
     </html>
   );

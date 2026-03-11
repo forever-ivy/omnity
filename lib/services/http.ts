@@ -1,10 +1,10 @@
-import { storageUtils } from "../utils";
+import { storageUtils } from "../utils/index";
 import {
   API_BASE_URL,
   ERROR_MESSAGES,
   STORAGE_KEYS,
 } from "../constants/constant";
-import { notifyError } from "../feedback";
+import { toast } from "sonner";
 import { ApiResponse, RequestConfig, ApiError } from "../types/api";
 
 type RequestInterceptor = (
@@ -51,7 +51,6 @@ class HttpClient {
     // 错误拦截器 - 处理通用错误
     this.addErrorInterceptor((error) => {
       if (error.status === 401) {
-        // 清除认证信息并跳转到登录页
         storageUtils.remove(STORAGE_KEYS.TOKEN);
         if (
           typeof window !== "undefined" &&
@@ -59,11 +58,11 @@ class HttpClient {
         ) {
           window.location.href = "/login";
         }
-        notifyError(ERROR_MESSAGES.UNAUTHORIZED);
+        toast.error(ERROR_MESSAGES.UNAUTHORIZED);
       } else if (error.status === 403) {
-        notifyError(ERROR_MESSAGES.FORBIDDEN);
+        toast.error(ERROR_MESSAGES.FORBIDDEN);
       } else {
-        notifyError(error.message || ERROR_MESSAGES.UNKNOWN_ERROR);
+        toast.error(error.message || ERROR_MESSAGES.UNKNOWN_ERROR);
       }
       throw error;
     });
@@ -336,7 +335,7 @@ class HttpClient {
 
       window.URL.revokeObjectURL(downloadUrl);
     } catch (error) {
-      notifyError("文件下载失败");
+      toast.error("文件下载失败");
       throw error;
     }
   }
@@ -352,3 +351,4 @@ export const http = new HttpClient();
 
 // 导出类型和实例
 export { HttpClient };
+export type { ApiResponse };

@@ -43,3 +43,11 @@ export interface PaginatedResponse<T = any> {
   pageSize: number;
   totalPages: number;
 }
+
+export interface PaginationParams {
+  page?: number;
+  pageSize?: number;
+  keyword?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}

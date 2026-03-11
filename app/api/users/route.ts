@@ -4,12 +4,21 @@ import { z } from 'zod';
 
 
 // 模拟数据库操作（实际项目中应该使用真实的数据库）
-const mockUsers = [
+const mockUsers: Array<{
+  id: number;
+  name: string;
+  email: string;
+  status: 'active' | 'inactive';
+  roleId: number;
+  roleName: string;
+  createdAt: string;
+  updatedAt: string;
+}> = [
   {
     id: 1,
     name: 'John Doe',
     email: 'john@example.com',
-    status: 'active' as const,
+    status: 'active',
     roleId: 1,
     roleName: 'Admin',
     createdAt: '2024-01-01T00:00:00Z',
@@ -19,7 +28,7 @@ const mockUsers = [
     id: 2,
     name: 'Jane Smith',
     email: 'jane@example.com',
-    status: 'active' as const,
+    status: 'active',
     roleId: 2,
     roleName: 'User',
     createdAt: '2024-01-02T00:00:00Z',
@@ -85,7 +94,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({
         success: false,
         message: '参数验证失败',
-        errors: error.errors,
+        errors: error.issues,
       }, { status: 400 });
     }
     return NextResponse.json({
@@ -130,7 +139,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: false,
         message: '数据验证失败',
-        errors: error.errors,
+        errors: error.issues,
       }, { status: 400 });
     }
     return NextResponse.json({

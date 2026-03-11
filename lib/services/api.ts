@@ -8,11 +8,9 @@ import type {  PaginationParams, PaginatedResponse } from "@/lib/types";
 export const userApi = {
   // 获取用户列表（支持分页和搜索）
   getUsers: (params?: PaginationParams & { search?: string }) => {
-    //构建查询参数
     const queryParams = new URLSearchParams();
-    if (params?.current) queryParams.set("current", params.current.toString());
-    if (params?.pageSize)
-      queryParams.set("pageSize", params.pageSize.toString());
+    if (params?.page) queryParams.set("page", params.page.toString());
+    if (params?.pageSize) queryParams.set("pageSize", params.pageSize.toString());
     if (params?.search) queryParams.set("search", params.search);
 
     const queryString = queryParams.toString();
